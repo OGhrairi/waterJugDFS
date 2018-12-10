@@ -223,7 +223,7 @@ int main()
     char yn;
     goalState = false;
     //allows user to input jug capacities
-    std::cout << "Input capacities A, B and C\n";
+    std::cout << "Input capacities A, B and C, one at a time\n";
     std::cin >> capacity[0];
     std::cin >> capacity[1];
     std::cin >> capacity[2];
@@ -239,4 +239,6 @@ int main()
     }
     //calls the main search function
     dfs();
+    system("PAUSE");
+
 }
