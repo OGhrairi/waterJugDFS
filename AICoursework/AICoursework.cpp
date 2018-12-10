@@ -3,11 +3,45 @@
 
 #include "pch.h"
 #include <iostream>
+#include <vector>
+#include <string>
+#include <stack>
+#include <algorithm>
+
+//defines a structure to represent the three jugs, j1, j2, j3
+struct state {
+    int j1;
+    int j2;
+    int j3;
+};
+
+void dfs() {
+    std::stack<state> nodeStack;
+    std::vector<state> outList;
+    state init = { 0,0,0 };
+    nodeStack.push(init);
+    while (!nodeStack.empty()) {
+        state tmp;
+        state v = nodeStack.top();
+        //if statements to generate children, e.g.:
+        //if(v.j1 < capacity[0] && fill1(v) not in outList){
+        //  tmp = fill1(v);
+        //  nodeStack.push(tmp);
+        // outList.push_back(tmp);
+        //}
+    }
+};
 
 int main()
-{
-    std::cout << "Hello World!\n"; 
+{   
+    int capacity[3];
+    std::cout << "Input capacities A, B and C\n";
+    std::cin >> capacity[0];
+    std::cin >> capacity[1];
+    std::cin >> capacity[2];
+    dfs();
 }
+
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu
