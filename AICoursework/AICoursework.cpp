@@ -17,6 +17,7 @@ struct state {
 //declare an array of integers that represent the max capacity of each jug
 int capacity[3];
 std::vector<state> outList;
+
 //functions that handle the 'fill', 'empty', and 'pour' operations for all combination of jugs
 state fill(int pos, state v) {
     switch(pos){
@@ -92,10 +93,12 @@ state pour(int src, int tgt, state v) {
     return v;
 }
 
-/*this function uses a lambda expression to search through the list of saved states,
-and return true if the current state has been found (i.e. if the unique combination of the 
-three volumes already exists in the list)*/
+
+
 bool searchValue;
+/*this function uses a lambda expression to search through the list of saved states,
+and return true if the current state has been found (i.e. if the unique combination of the
+three volumes already exists in the list)*/
 bool searcher(state v) {
     searchValue = false;
     std::for_each(outList.begin(), outList.end(), [v](state x) {
@@ -106,130 +109,134 @@ bool searcher(state v) {
     });
     return searchValue;
 }
+
+bool goalState;
+state goal;
+
 /*This is the main search algorithm function*/
 void dfs() {
-    std::stack<state> nodeStack;
+    std::stack<state> nodeStack;//create the search stack 
     state tmp;
     state v;
     state init = { 0,0,0 };
-    nodeStack.push(init);
-    while (!nodeStack.empty()) {
-        v = nodeStack.top();
-        std::cout << "----------------------------------------------------------------\n";
-        std::cout << "top of stack: " << v.j1 << " " << v.j2 << " " << v.j3 << "\n";
-        std::cout << "Size of stack: " << nodeStack.size() << "\n";
-        std::cout << "Size of output list: " << outList.size() << "\n";
-        for (auto &i : outList) {
-
-            std::cout << i.j1 << " " << i.j2 << " " << i.j3 << "\n";
+    nodeStack.push(init);//initialise the stack with the start state
+    outList.push_back(init);
+    while (!nodeStack.empty()) {//program runs until stack is empty
+        v = nodeStack.top(); //current working node
+        //if statement to handle if the user wants to reach a certain goal state
+        if (goalState == true) {
+            if (v.j1 == goal.j1 && v.j2 == goal.j2 && v.j3 == goal.j3) {
+                for (auto &i : outList) {
+                    std::cout << i.j1 << " " << i.j2 << " " << i.j3 << "\n";
+                    //outputs a list of all states from the output list and gives the size of the list
+                }
+                std::cout << "Size of output list: " << outList.size() << "\n";
+                std::cout << "Goal State Reached\n";
+                return;
+            }
         }
-        //if statements to generate children, e.g.:
-        //if(v.j1 < capacity[0] && fill1(v) not in outList){
-        //  tmp = fill1(v);
-        //  nodeStack.push(tmp);
-        // outList.push_back(tmp);
-        //}
+
+        //beginning of the child node generation. each node can have >= 12 children
+        //each of these generators calls the 'searcher' function to check if child is already found
         //first, handles the three possible 'fill' children
         if (v.j1 < capacity[0] && searcher(fill(1, v)) == false) {
-            tmp = fill(1, v);
-            nodeStack.push(tmp);
-            outList.push_back(tmp);
-           // std::cout << tmp.j1 << " " << tmp.j2 << " " << tmp.j3<< "\n";
+            tmp = fill(1, v);//calls the fill function
+            nodeStack.push(tmp);//push new node to stack
+            outList.push_back(tmp);//add new node to output list
         }
         else if (v.j2 < capacity[1] && searcher(fill(2, v)) == false) {
             tmp = fill(2, v);
             nodeStack.push(tmp);
             outList.push_back(tmp);
-          //  std::cout << tmp.j1 << " " << tmp.j2 << " " << tmp.j3 << "\n";
         }
         else if (v.j3 < capacity[2] && searcher(fill(3, v)) == false) {
             tmp = fill(3, v);
             nodeStack.push(tmp);
             outList.push_back(tmp);
-         //   std::cout << tmp.j1 << " " << tmp.j2 << " " << tmp.j3 << "\n";
         }
         //next, handles the 3 possible 'empty' children
         else if (v.j1 > 0 && searcher(empty(1, v)) == false) {
-            tmp = empty(1, v);
+            tmp = empty(1, v);//calls the empty function
             nodeStack.push(tmp);
             outList.push_back(tmp);
-            std::cout << tmp.j1 << " " << tmp.j2 << " " << tmp.j3 << "\n";
         }
         else if (v.j2 > 0 && searcher(empty(2, v)) == false) {
             tmp = empty(2, v);
             nodeStack.push(tmp);
             outList.push_back(tmp);
-            std::cout << tmp.j1 << " " << tmp.j2 << " " << tmp.j3 << "\n";
         }
         else if (v.j3 > 0 && searcher(empty(3, v)) == false) {
             tmp = empty(3, v);
             nodeStack.push(tmp);
             outList.push_back(tmp);
-            std::cout << tmp.j1 << " " << tmp.j2 << " " << tmp.j3 << "\n";
         }
         //next, handles the 6 possible 'pour' children
         else if (v.j1 > 0 && v.j2 < capacity[1] && searcher(pour(1, 2, v)) == false) {
-            tmp = pour(1, 2, v);
+            tmp = pour(1, 2, v);//calls the pour function with both source and destination
             nodeStack.push(tmp);
             outList.push_back(tmp);
-            std::cout << tmp.j1 << " " << tmp.j2 << " " << tmp.j3 << "\n";
         }
         else if (v.j1 > 0 && v.j3 < capacity[2] && searcher(pour(1, 3, v)) == false) {
             tmp = pour(1, 3, v);
             nodeStack.push(tmp);
             outList.push_back(tmp);
-            std::cout << tmp.j1 << " " << tmp.j2 << " " << tmp.j3 << "\n";
         }
         else if (v.j2 > 0 && v.j1 < capacity[0] && searcher(pour(2, 1, v)) == false) {
             tmp = pour(2, 1, v);
             nodeStack.push(tmp);
             outList.push_back(tmp);
-            std::cout << tmp.j1 << " " << tmp.j2 << " " << tmp.j3 << "\n";
         }
         else if (v.j2 > 0 && v.j3 < capacity[2] && searcher(pour(2, 3, v)) == false) {
             tmp = pour(2, 3, v);
             nodeStack.push(tmp);
             outList.push_back(tmp);
-            std::cout << tmp.j1 << " " << tmp.j2 << " " << tmp.j3 << "\n";
         }
         else if (v.j3 > 0 && v.j1 < capacity[0] && searcher(pour(3, 1, v)) == false) {
             tmp = pour(3, 1, v);
             nodeStack.push(tmp);
             outList.push_back(tmp);
-            std::cout << tmp.j1 << " " << tmp.j2 << " " << tmp.j3 << "\n";
         }
         else if (v.j3 > 0 && v.j2 < capacity[1] && searcher(pour(3, 2, v)) == false) {
             tmp = pour(3, 2, v);
             nodeStack.push(tmp);
             outList.push_back(tmp);
-            std::cout << tmp.j1 << " " << tmp.j2 << " " << tmp.j3 << "\n";
         }
+        /*when none of the above childred are valid, either because 
+        the current node has no children, or the children that it does have are already
+        present in the output list, the current node is popped from the stack to allow
+        the program to move up one level*/
         else {
             nodeStack.pop();
         }
-
         
-    }
+    }//outputs a list of all nodes found, and gives the size of the list
+    for (auto &i : outList) {
+
+        std::cout << i.j1 << " " << i.j2 << " " << i.j3 << "\n";
+        
+    }std::cout << "Size of output list: " << outList.size() << "\n";
+
 };
 
 int main()
 {   
+    char yn;
+    goalState = false;
+    //allows user to input jug capacities
     std::cout << "Input capacities A, B and C\n";
     std::cin >> capacity[0];
     std::cin >> capacity[1];
     std::cin >> capacity[2];
+    //allows user to specify an optional goal state at which the program will halt
+    std::cout << "Goal State? y/n\n";
+    std::cin >> yn;
+    if (yn == 'y') {
+        std::cout << "Enter Goal State\n";
+        std::cin >> goal.j1;
+        std::cin >> goal.j2;
+        std::cin >> goal.j3;
+        goalState = true;
+    }
+    //calls the main search function
     dfs();
-    
 }
-
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
